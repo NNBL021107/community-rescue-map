@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Đăng ký Tình nguyện viên – CRM Đồng Nai</title>
+  <link rel="stylesheet" href="css/style.css" />
+
+  <!-- ===== CSS bổ sung cho trang Volunteer ===== -->
+  <style>
+    /* ---------- Page header ---------- */
+    .page-header {
+      text-align: center;
+      margin-bottom: var(--space-xl);
+    }
+
+    .page-header__title {
+      font-size: var(--font-size-2xl);
+      font-weight: 700;
+      color: var(--color-primary);
+    }
+
+    .page-header__sub {
+      color: var(--color-text-muted);
+      font-size: var(--font-size-sm);
+      margin-top: var(--space-xs);
+    }
+
+    /* ---------- Section Title ---------- */
+    .section-title {
+      font-size: var(--font-size-xl);
+      font-weight: 700;
+      margin-bottom: var(--space-lg);
+      padding-bottom: var(--space-sm);
+      border-bottom: 2px solid var(--color-primary);
+      display: inline-block;
+    }
+
+    /* ---------- Form Container ---------- */
+    .volunteer-layout {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: var(--space-2xl);
+      max-width: 860px;
+      margin: 0 auto;
+    }
+
+    .form-card {
+      background: var(--color-surface);
+      border-radius: var(--radius-lg);
+      padding: var(--space-xl);
+      box-shadow: var(--shadow-sm);
+      border: 1px solid var(--color-border);
+    }
+
+    .form {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-md);
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-xs);
+    }
+
+    .form-group__label {
+      font-size: var(--font-size-sm);
+      font-weight: 600;
+      color: var(--color-text);
+    }
+
+    .form-group__label .required {
+      color: var(--color-medical);
+      margin-left: 2px;
+    }
+
+    .form-group__input,
+    .form-group__select {
+      width: 100%;
+      padding: var(--space-sm) var(--space-md);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-md);
+      font-size: var(--font-size-base);
+      background: #fff;
+      transition: border-color var(--transition), box-shadow var(--transition);
+    }
+
+    .form-group__input:focus,
+    .form-group__select:focus {
+      border-color: var(--color-primary);
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, .15);
+    }
+
+    /* Error styles */
+    .form-group__input--error,
+    .form-group__select--error {
+      border-color: var(--color-medical) !important;
+      box-shadow: 0 0 0 3px rgba(231, 76, 60, .15) !important;
+    }
+
+    .form-group__error {
+      display: none;
+      font-size: 0.8rem;
+      color: var(--color-medical);
+      font-weight: 500;
+      line-height: 1.4;
+    }
+
+    .form-group__error--visible {
+      display: block;
+    }
+
+    /* Checkbox Group: Skills / Capacities */
+    .skills-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: var(--space-sm);
+      margin-top: var(--space-xs);
+    }
+
+    .skill-choice {
+      display: flex;
+      align-items: center;
+      gap: var(--space-sm);
+      padding: var(--space-sm) var(--space-md);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      background: var(--color-bg);
+      transition: all var(--transition);
+      user-select: none;
+    }
+
+    .skill-choice:hover {
+      border-color: var(--color-primary);
+      background: #eff6ff;
+    }
+
+    .skill-choice input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      accent-color: var(--color-primary);
+      cursor: pointer;
+    }
+
+    .skill-choice__text {
+      font-size: var(--font-size-sm);
+      font-weight: 500;
+      color: var(--color-text);
+    }
+
+    .skill-choice--error {
+      border-color: var(--color-medical) !important;
+      background: var(--color-medical-light) !important;
+    }
+
+    /* Submit Button */
+    .btn-submit {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--space-sm);
+      padding: var(--space-sm) var(--space-xl);
+      border-radius: var(--radius-md);
+      font-size: var(--font-size-base);
+      font-weight: 600;
+      color: #fff;
+      background-color: var(--color-primary);
+      cursor: pointer;
+      transition: background-color var(--transition), transform var(--transition);
+      align-self: flex-start;
+      margin-top: var(--space-xs);
+    }
+
+    .btn-submit:hover {
+      background-color: var(--color-primary-dark);
+    }
+
+    .btn-submit:active {
+      transform: scale(.98);
+    }
+
+    /* Success Toast (mượt mà, tự ẩn sau 3 giây) */
+    .toast {
+      opacity: 0;
+      transform: translateY(-12px);
+      pointer-events: none;
+      visibility: hidden;
+      transition: opacity 0.35s ease, transform 0.35s ease, visibility 0.35s;
+      padding: var(--space-md) var(--space-lg);
+      border-radius: var(--radius-md);
+      font-size: var(--font-size-sm);
+      font-weight: 500;
+      color: #065f46;
+      background-color: var(--color-done-light);
+      border: 1px solid var(--color-done);
+      display: flex;
+      align-items: center;
+      gap: var(--space-sm);
+      margin-bottom: var(--space-md);
+    }
+
+    .toast--visible {
+      opacity: 1;
+      transform: translateY(0);
+      pointer-events: auto;
+      visibility: visible;
+    }
+
+    /* ---------- Volunteer List Section ---------- */
+    .volunteer-list-section {
+      margin-top: var(--space-xl);
+    }
+
+    .vol-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: var(--space-lg);
+    }
+
+    .vol-grid__empty {
+      grid-column: 1 / -1;
+      text-align: center;
+      padding: var(--space-xl);
+      color: var(--color-text-muted);
+      font-size: var(--font-size-sm);
+      background: var(--color-surface);
+      border-radius: var(--radius-lg);
+      border: 1px dashed var(--color-border);
+    }
+
+    .vol-card {
+      background: var(--color-surface);
+      border-radius: var(--radius-lg);
+      padding: var(--space-lg);
+      box-shadow: var(--shadow-sm);
+      border: 1px solid var(--color-border);
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-sm);
+      transition: transform var(--transition), box-shadow var(--transition);
+    }
+
+    .vol-card:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-md);
+    }
+
+    .vol-card__header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: var(--space-sm);
+      border-bottom: 1px solid var(--color-border);
+      padding-bottom: var(--space-xs);
+    }
+
+    .vol-card__name {
+      font-size: var(--font-size-base);
+      font-weight: 700;
+      color: var(--color-text);
+    }
+
+    .vol-card__date {
+      font-size: 0.72rem;
+      color: var(--color-text-muted);
+    }
+
+    .vol-card__row {
+      display: flex;
+      align-items: flex-start;
+      gap: var(--space-sm);
+      font-size: var(--font-size-sm);
+      color: var(--color-text-muted);
+      line-height: 1.5;
+    }
+
+    .vol-card__row a {
+      color: var(--color-primary);
+      text-decoration: underline;
+      font-weight: 500;
+    }
+
+    .vol-card__icon {
+      width: 18px;
+      flex-shrink: 0;
+    }
+
+    .vol-card__skills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-xs);
+      margin-top: auto;
+      padding-top: var(--space-xs);
+    }
+
+    /* ---------- Responsive ---------- */
+    @media (max-width: 768px) {
+      .skills-grid {
+        grid-template-columns: 1fr;
+      }
+      .vol-grid {
+        grid-template-columns: 1fr;
+      }
+      .btn-submit {
+        width: 100%;
+      }
+    }
+
+    @media (max-width: 600px) {
+      .form-card {
+        padding: var(--space-lg) var(--space-md);
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <!-- ==================== NAVBAR ==================== -->
+  <nav class="navbar" role="navigation" aria-label="Điều hướng chính">
+    <a href="index.html" class="navbar__brand">
+      <span class="navbar__brand-icon" aria-hidden="true">🗺️</span>
+      CRM Đồng Nai
+    </a>
+
+    <button class="navbar__toggle" aria-label="Mở menu" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
+
+    <ul class="navbar__links">
+      <li><a href="index.html"     class="navbar__link">Trang chủ</a></li>
+      <li><a href="requests.html"  class="navbar__link">Danh sách yêu cầu</a></li>
+      <li><a href="volunteer.html" class="navbar__link navbar__link--active" aria-current="page">Đăng ký tình nguyện</a></li>
+    </ul>
+  </nav>
+
+  <!-- ==================== MAIN ==================== -->
+  <main class="main">
+    <header class="page-header">
+      <h1 class="page-header__title">Gia nhập Đội ngũ Tình nguyện viên</h1>
+      <p class="page-header__sub">Chung tay tiếp sức, kết nối cứu trợ đến đồng bào khó khăn tại Đồng Nai</p>
+    </header>
+
+    <div class="volunteer-layout">
+      <!-- FORM ĐĂNG KÝ -->
+      <section class="form-card" aria-label="Đăng ký tình nguyện viên">
+        <h2 class="section-title">🤝 Thông tin đăng ký</h2>
+
+        <!-- Toast thông báo thành công -->
+        <div class="toast" id="toast" role="alert">
+          <span style="font-size:1.2rem;">🎉</span>
+          <span id="toastMsg">Đăng ký tình nguyện viên thành công! Cảm ơn tấm lòng của bạn.</span>
+        </div>
+
+        <form class="form" id="volunteerForm" novalidate>
+          <!-- Họ tên / Tên tổ chức -->
+          <div class="form-group">
+            <label class="form-group__label" for="inputName">
+              Họ tên / Tên tổ chức <span class="required">*</span>
+            </label>
+            <input
+              class="form-group__input"
+              type="text"
+              id="inputName"
+              name="name"
+              placeholder="VD: Lê Hoàng Nam hoặc Đội Cứu trợ Biên Hòa"
+              autocomplete="name"
+            />
+            <span class="form-group__error" id="errorName"></span>
+          </div>
+
+          <!-- Số điện thoại -->
+          <div class="form-group">
+            <label class="form-group__label" for="inputPhone">
+              Số điện thoại (10 chữ số) <span class="required">*</span>
+            </label>
+            <input
+              class="form-group__input"
+              type="tel"
+              id="inputPhone"
+              name="phone"
+              placeholder="VD: 0912345678"
+              autocomplete="tel"
+            />
+            <span class="form-group__error" id="errorPhone"></span>
+          </div>
+
+          <!-- Email -->
+          <div class="form-group">
+            <label class="form-group__label" for="inputEmail">
+              Địa chỉ Email <span class="required">*</span>
+            </label>
+            <input
+              class="form-group__input"
+              type="email"
+              id="inputEmail"
+              name="email"
+              placeholder="VD: tinhnguyen@example.com"
+              autocomplete="email"
+            />
+            <span class="form-group__error" id="errorEmail"></span>
+          </div>
+
+          <!-- Khu vực có thể hỗ trợ -->
+          <div class="form-group">
+            <label class="form-group__label" for="inputArea">
+              Khu vực có thể hỗ trợ <span class="required">*</span>
+            </label>
+            <select class="form-group__select" id="inputArea" name="area">
+              <option value="">-- Chọn huyện / thành phố tại Đồng Nai --</option>
+              <option value="TP. Biên Hòa">TP. Biên Hòa</option>
+              <option value="TP. Long Khánh">TP. Long Khánh</option>
+              <option value="Huyện Nhơn Trạch">Huyện Nhơn Trạch</option>
+              <option value="Huyện Long Thành">Huyện Long Thành</option>
+              <option value="Huyện Trảng Bom">Huyện Trảng Bom</option>
+              <option value="Huyện Thống Nhất">Huyện Thống Nhất</option>
+              <option value="Huyện Cẩm Mỹ">Huyện Cẩm Mỹ</option>
+              <option value="Huyện Xuân Lộc">Huyện Xuân Lộc</option>
+              <option value="Huyện Định Quán">Huyện Định Quán</option>
+              <option value="Huyện Tân Phú">Huyện Tân Phú</option>
+              <option value="Huyện Vĩnh Cửu">Huyện Vĩnh Cửu</option>
+              <option value="Toàn tỉnh Đồng Nai">Toàn tỉnh Đồng Nai</option>
+            </select>
+            <span class="form-group__error" id="errorArea"></span>
+          </div>
+
+          <!-- Khả năng hỗ trợ (Checkboxes) -->
+          <div class="form-group">
+            <label class="form-group__label">
+              Khả năng hỗ trợ (chọn ít nhất 1) <span class="required">*</span>
+            </label>
+            <div class="skills-grid" id="skillsContainer">
+              <label class="skill-choice">
+                <input type="checkbox" name="skills" value="van-chuyen" />
+                <span class="skill-choice__text">🚚 Vận chuyển &amp; Hậu cần</span>
+              </label>
+              <label class="skill-choice">
+                <input type="checkbox" name="skills" value="y-te" />
+                <span class="skill-choice__text">🩺 Hỗ trợ y tế &amp; Sơ cứu</span>
+              </label>
+              <label class="skill-choice">
+                <input type="checkbox" name="skills" value="nhu-yeu-pham" />
+                <span class="skill-choice__text">🍚 Cung cấp nhu yếu phẩm</span>
+              </label>
+              <label class="skill-choice">
+                <input type="checkbox" name="skills" value="cho-o" />
+                <span class="skill-choice__text">🏠 Chỗ ở tạm thời</span>
+              </label>
+            </div>
+            <span class="form-group__error" id="errorSkills"></span>
+          </div>
+
+          <button class="btn-submit" type="submit">
+            <span>✨</span> Đăng ký tham gia ngay
+          </button>
+        </form>
+      </section>
+
+      <!-- DANH SÁCH TÌNH NGUYỆN VIÊN ĐÃ ĐĂNG KÝ -->
+      <section class="volunteer-list-section" aria-label="Danh sách tình nguyện viên đã đăng ký">
+        <h2 class="section-title">🌟 Danh sách Tình nguyện viên vừa tham gia</h2>
+        <div class="vol-grid" id="volGrid">
+          <!-- Được render bởi js/volunteer.js -->
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <!-- ==================== FOOTER ==================== -->
+  <footer class="footer">
+    <span>© 2026 Community Rescue Map</span>
+    <span>·</span>
+    <span>Dự án cộng đồng – Đồng Nai</span>
+  </footer>
+
+  <!-- ==================== SCRIPTS ==================== -->
+  <script src="js/data.js"></script>
+  <script src="js/volunteer.js"></script>
+</body>
+</html>
