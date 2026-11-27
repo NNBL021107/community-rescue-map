@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bản đồ Cứu trợ &amp; Kết nối Cộng đồng – Đồng Nai</title>
+  <link rel="stylesheet" href="css/style.css" />
+
+  <!-- ===== CSS bổ sung cho trang Bản đồ ===== -->
+  <style>
+    /* ---------- Hero heading ---------- */
+    .page-header {
+      text-align: center;
+      margin-bottom: var(--space-xl);
+    }
+
+    .page-header__title {
+      font-size: var(--font-size-2xl);
+      font-weight: 700;
+      color: var(--color-primary);
+    }
+
+    .page-header__sub {
+      color: var(--color-text-muted);
+      font-size: var(--font-size-sm);
+      margin-top: var(--space-xs);
+    }
+
+    /* ---------- Toolbar: Filters + Legend ---------- */
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: var(--space-md);
+      margin-bottom: var(--space-lg);
+    }
+
+    /* -- Filter buttons -- */
+    .filter-group {
+      display: flex;
+      gap: var(--space-xs);
+      flex-wrap: wrap;
+    }
+
+    .filter-btn {
+      padding: var(--space-xs) var(--space-md);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-full);
+      font-size: var(--font-size-sm);
+      font-weight: 500;
+      color: var(--color-text-muted);
+      background-color: var(--color-surface);
+      transition: all var(--transition);
+      cursor: pointer;
+    }
+
+    .filter-btn:hover {
+      border-color: var(--color-primary);
+      color: var(--color-primary);
+    }
+
+    .filter-btn--active {
+      background-color: var(--color-primary);
+      border-color: var(--color-primary);
+      color: #fff;
+    }
+
+    /* -- Legend -- */
+    .legend {
+      display: flex;
+      gap: var(--space-md);
+      flex-wrap: wrap;
+      font-size: var(--font-size-sm);
+      color: var(--color-text-muted);
+    }
+
+    .legend__item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .legend__dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .legend__dot--medical { background-color: var(--color-medical); animation: pulse 1.6s infinite; }
+    .legend__dot--food    { background-color: var(--color-food);    }
+    .legend__dot--shelter { background-color: var(--color-shelter); }
+
+    /* ---------- Map container ---------- */
+    .map-wrapper {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 16 / 10;
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      background:
+        /* Lưới mô phỏng bản đồ */
+        repeating-linear-gradient(
+          0deg,
+          transparent,
+          transparent 49px,
+          var(--color-border) 49px,
+          var(--color-border) 50px
+        ),
+        repeating-linear-gradient(
+          90deg,
+          transparent,
+          transparent 49px,
+          var(--color-border) 49px,
+          var(--color-border) 50px
+        ),
+        /* Gradient nền */
+        linear-gradient(135deg, #e0f2fe 0%, #dbeafe 40%, #c7e2d0 70%, #d1fae5 100%);
+      box-shadow: var(--shadow-md);
+    }
+
+    /* Nhãn vùng mô phỏng */
+    .map-wrapper::before {
+      content: "🗺️ Khu vực Đồng Nai";
+      position: absolute;
+      top: var(--space-sm);
+      left: var(--space-md);
+      font-size: var(--font-size-sm);
+      font-weight: 600;
+      color: var(--color-text-muted);
+      background: rgba(255,255,255,.75);
+      padding: 2px var(--space-sm);
+      border-radius: var(--radius-sm);
+      z-index: 2;
+    }
+
+    /* ---------- Marker ---------- */
+    .marker {
+      position: absolute;
+      width: 28px;
+      height: 28px;
+      border-radius: 50% 50% 50% 0;
+      transform: translate(-50%, -100%) rotate(-45deg);
+      cursor: pointer;
+      z-index: 5;
+      border: 2px solid #fff;
+      box-shadow: var(--shadow-md);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .marker::after {
+      content: "";
+      position: absolute;
+      inset: 4px;
+      background: rgba(255,255,255,.45);
+      border-radius: 50%;
+    }
+
+    .marker:hover {
+      transform: translate(-50%, -100%) rotate(-45deg) scale(1.25);
+      box-shadow: var(--shadow-lg);
+      z-index: 10;
+    }
+
+    /* Màu theo loại */
+    .marker--medical { background-color: var(--color-medical); animation: pulse 1.6s infinite; }
+    .marker--food    { background-color: var(--color-food);    }
+    .marker--shelter { background-color: var(--color-shelter); }
+    .marker--done    { background-color: var(--color-done); opacity: .65; animation: none; }
+
+    /* ---------- Pulse keyframes ---------- */
+    @keyframes pulse {
+      0%   { box-shadow: 0 0 0 0 rgba(231, 76, 60, .5); }
+      70%  { box-shadow: 0 0 0 10px rgba(231, 76, 60, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(231, 76, 60, 0); }
+    }
+
+    /* ---------- Popup overlay ---------- */
+    .popup-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 500;
+      background: rgba(0,0,0,.45);
+      justify-content: center;
+      align-items: center;
+      padding: var(--space-md);
+    }
+
+    .popup-overlay--visible {
+      display: flex;
+    }
+
+    /* Popup card */
+    .popup {
+      background: var(--color-surface);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-lg);
+      width: 100%;
+      max-width: 420px;
+      overflow: hidden;
+      animation: popIn .25s ease;
+    }
+
+    @keyframes popIn {
+      from { opacity: 0; transform: scale(.9) translateY(12px); }
+      to   { opacity: 1; transform: scale(1)  translateY(0);    }
+    }
+
+    .popup__header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: var(--space-md) var(--space-lg);
+      border-bottom: 1px solid var(--color-border);
+    }
+
+    .popup__title {
+      font-size: var(--font-size-lg);
+      font-weight: 700;
+    }
+
+    .popup__close {
+      font-size: 1.3rem;
+      padding: var(--space-xs);
+      border-radius: var(--radius-sm);
+      line-height: 1;
+      transition: background var(--transition);
+    }
+
+    .popup__close:hover {
+      background: var(--color-bg);
+    }
+
+    .popup__body {
+      padding: var(--space-lg);
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-sm);
+      font-size: var(--font-size-sm);
+      line-height: 1.7;
+    }
+
+    .popup__row {
+      display: flex;
+      gap: var(--space-sm);
+    }
+
+    .popup__label {
+      flex-shrink: 0;
+      font-weight: 600;
+      color: var(--color-text-muted);
+      min-width: 90px;
+    }
+
+    .popup__value {
+      word-break: break-word;
+    }
+
+    .popup__value a {
+      color: var(--color-primary);
+      text-decoration: underline;
+    }
+
+    /* ---------- Stats bar ---------- */
+    .stats {
+      display: flex;
+      gap: var(--space-md);
+      flex-wrap: wrap;
+      margin-top: var(--space-lg);
+    }
+
+    .stat-card {
+      flex: 1;
+      min-width: 130px;
+      text-align: center;
+      padding: var(--space-md);
+      border-radius: var(--radius-md);
+      background: var(--color-surface);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .stat-card__number {
+      font-size: var(--font-size-2xl);
+      font-weight: 700;
+    }
+
+    .stat-card__label {
+      font-size: var(--font-size-sm);
+      color: var(--color-text-muted);
+    }
+
+    .stat-card--total   .stat-card__number { color: var(--color-primary);  }
+    .stat-card--pending .stat-card__number { color: var(--color-medical); }
+    .stat-card--done    .stat-card__number { color: var(--color-done);    }
+
+    /* ---------- Responsive ≤ 600px ---------- */
+    @media (max-width: 600px) {
+      .toolbar {
+        flex-direction: column;
+      }
+
+      .map-wrapper {
+        aspect-ratio: 4 / 3;
+      }
+
+      .marker {
+        width: 22px;
+        height: 22px;
+      }
+
+      .popup {
+        max-width: 100%;
+      }
+
+      .popup__label {
+        min-width: 72px;
+      }
+
+      .stats {
+        flex-direction: column;
+      }
+    }
+
+    /* ---------- Responsive ≤ 375px ---------- */
+    @media (max-width: 375px) {
+      .page-header__title {
+        font-size: var(--font-size-xl);
+      }
+
+      .filter-btn {
+        font-size: 0.75rem;
+        padding: 3px var(--space-sm);
+      }
+
+      .legend {
+        gap: var(--space-sm);
+        font-size: 0.75rem;
+      }
+
+      .map-wrapper {
+        aspect-ratio: 3 / 2.5;
+        border-radius: var(--radius-md);
+      }
+
+      .marker {
+        width: 20px;
+        height: 20px;
+      }
+
+      .popup__body {
+        padding: var(--space-md);
+      }
+
+      .popup__row {
+        flex-direction: column;
+        gap: 2px;
+      }
+
+      .popup__label {
+        min-width: unset;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <!-- ==================== NAVBAR ==================== -->
+  <nav class="navbar" role="navigation" aria-label="Điều hướng chính">
+    <a href="index.html" class="navbar__brand">
+      <span class="navbar__brand-icon" aria-hidden="true">🗺️</span>
+      CRM Đồng Nai
+    </a>
+
+    <button class="navbar__toggle" aria-label="Mở menu" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
+
+    <ul class="navbar__links">
+      <li><a href="index.html"     class="navbar__link navbar__link--active" aria-current="page">Trang chủ</a></li>
+      <li><a href="requests.html"  class="navbar__link">Danh sách yêu cầu</a></li>
+      <li><a href="volunteer.html" class="navbar__link">Đăng ký tình nguyện</a></li>
+    </ul>
+  </nav>
+
+  <!-- ==================== MAIN ==================== -->
+  <main class="main">
+    <!-- Page heading -->
+    <header class="page-header">
+      <h1 class="page-header__title">Bản đồ Cứu trợ &amp; Kết nối Cộng đồng</h1>
+      <p class="page-header__sub">Theo dõi và hỗ trợ các nhu cầu cứu trợ tại khu vực Đồng Nai</p>
+    </header>
+
+    <!-- Toolbar: Filters + Legend -->
+    <section class="toolbar" aria-label="Bộ lọc và chú thích">
+      <div class="filter-group" role="group" aria-label="Lọc theo trạng thái">
+        <button class="filter-btn filter-btn--active" data-filter="all">Tất cả</button>
+        <button class="filter-btn" data-filter="dang-cho">🔴 Đang chờ</button>
+        <button class="filter-btn" data-filter="da-giup">🟢 Đã được giúp</button>
+      </div>
+
+      <div class="legend" aria-label="Chú thích màu Marker">
+        <div class="legend__item">
+          <span class="legend__dot legend__dot--medical" aria-hidden="true"></span>
+          <span>Y tế (khẩn cấp)</span>
+        </div>
+        <div class="legend__item">
+          <span class="legend__dot legend__dot--food" aria-hidden="true"></span>
+          <span>Thực phẩm</span>
+        </div>
+        <div class="legend__item">
+          <span class="legend__dot legend__dot--shelter" aria-hidden="true"></span>
+          <span>Nơi ở</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Map -->
+    <section aria-label="Bản đồ cứu trợ">
+      <div class="map-wrapper" id="map"></div>
+    </section>
+
+    <!-- Stats -->
+    <section class="stats" aria-label="Thống kê nhanh" id="stats"></section>
+  </main>
+
+  <!-- ==================== POPUP ==================== -->
+  <div class="popup-overlay" id="popupOverlay" role="dialog" aria-modal="true" aria-label="Chi tiết yêu cầu">
+    <article class="popup" id="popupCard">
+      <div class="popup__header">
+        <h2 class="popup__title" id="popupTitle">Chi tiết yêu cầu</h2>
+        <button class="popup__close" id="popupClose" aria-label="Đóng">✕</button>
+      </div>
+      <div class="popup__body" id="popupBody">
+        <!-- Nội dung được render bởi JS -->
+      </div>
+    </article>
+  </div>
+
+  <!-- ==================== FOOTER ==================== -->
+  <footer class="footer">
+    <span>© 2026 Community Rescue Map</span>
+    <span>·</span>
+    <span>Dự án cộng đồng – Đồng Nai</span>
+  </footer>
+
+  <!-- ==================== SCRIPTS ==================== -->
+  <script src="js/data.js"></script>
+  <script src="js/map.js"></script>
+</body>
+</html>
