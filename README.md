@@ -1,12 +1,12 @@
-# 🗺️ Bản đồ Cứu trợ & Kết nối Cộng đồng (Community Rescue Map)
+# Bản đồ Cứu trợ & Kết nối Cộng đồng (Community Rescue Map)
 
 Ứng dụng web hỗ trợ trực quan hóa điểm nóng cần cứu trợ khẩn cấp và kết nối trực tiếp giữa người dân đang gặp khó khăn với các đội nhóm tình nguyện viên tại khu vực tỉnh **Đồng Nai**.
 
-🌐 **Live Demo (GitHub Pages):** [https://nnbl021107.github.io/community-rescue-map/](https://nnbl021107.github.io/community-rescue-map/)
+**Live Demo (GitHub Pages):** [https://nnbl021107.github.io/community-rescue-map/](https://nnbl021107.github.io/community-rescue-map/)
 
 ---
 
-## 👥 Danh sách thành viên & Vai trò
+## Danh sách thành viên & Vai trò
 
 | STT | Họ và Tên | Vai trò | Trách nhiệm chính |
 | :---: | :--- | :--- | :--- |
@@ -16,7 +16,7 @@
 
 ---
 
-## 🎯 Bài toán giải quyết & Tính năng chính
+## Bài toán giải quyết & Tính năng chính
 
 ### 1. Bài toán thực tế
 Khi xảy ra thiên tai, lũ lụt hoặc sự cố khẩn cấp, việc tiếp nhận và phân phối nguồn lực cứu trợ thường gặp tình trạng:
@@ -47,7 +47,7 @@ Khi xảy ra thiên tai, lũ lụt hoặc sự cố khẩn cấp, việc tiếp 
 
 ---
 
-## 💬 3–5 Câu Prompt nổi bật nhất của nhóm
+## 3–5 Câu Prompt nổi bật nhất của nhóm
 
 Dưới đây là các câu Prompt tiêu biểu thể hiện phương pháp làm việc có cấu trúc của nhóm cùng Trợ lý AI trong quá trình thiết kế và phát triển dự án:
 
@@ -65,7 +65,7 @@ Dưới đây là các câu Prompt tiêu biểu thể hiện phương pháp làm
 
 ---
 
-## 🛠️ Công nghệ sử dụng
+## Công nghệ sử dụng
 - **HTML5:** Semantic Elements (`<header>`, `<nav>`, `<main>`, `<section>`, `<article>`, `<footer>`).
 - **CSS3:** CSS Custom Properties (`:root`), Flexbox, CSS Grid, Media Queries, CSS Keyframe Animations (`@keyframes pulse`).
 - **JavaScript (ES6+):** Xử lý mảng nâng cao (`.map()`, `.filter()`), DOM Manipulation, Event Handling (`event.preventDefault()`), Regular Expressions (`RegExp`), `localStorage` API, IIFE Pattern.
